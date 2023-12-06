@@ -4,7 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "./components/theme-provider";
 import { cn } from "@/lib/utils";
 
-export const fontSans = Inter({
+const fontSans = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
 });
