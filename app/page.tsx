@@ -137,7 +137,6 @@ export default function Home() {
             {names.length > 0 && (
               <div className="self-start w-full max-w-[100px]">
                 <Label>{`Shared by`}</Label>
-
                 <ToggleGroup
                   type="multiple"
                   className="self-end gap-2 flex-wrap"
