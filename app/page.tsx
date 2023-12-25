@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/card";
 
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import Header from "./components/header";
+import Header from "./components/Header";
 import { InputWithLabel } from "./components/InputWithLabel";
 import { useState } from "react";
 import { useFormStore } from "./state";

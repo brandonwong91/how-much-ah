@@ -7,6 +7,7 @@ const Header = () => {
       <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl items-center">
         So, how much ah?
       </h1>
+
       <div className="self-center">
         <ModeToggle />
       </div>
