@@ -22,6 +22,8 @@ import { useState } from "react";
 import { useFormStore } from "./state";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
+import { PlusIcon } from "@radix-ui/react-icons";
 export default function Home() {
   const {
     names,
@@ -34,13 +36,22 @@ export default function Home() {
     setItems,
   } = useFormStore();
   const [sharedBy, setSharedBy] = useState<string[]>([]);
+  const [name, setName] = useState("");
   const onNamesHandleKeyDown = (
     event: React.KeyboardEvent<HTMLInputElement>
   ) => {
     if (event.key === "Enter") {
       setNames([...names, event.currentTarget.value]);
       event.currentTarget.value = "";
+      setName("");
     }
+  };
+  const onChangeSetName = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setName(event.currentTarget.value);
+  };
+  const onClickAddNamesButton = () => {
+    setNames([...names, name]);
+    setName("");
   };
 
   const onItemsHandleKeyDown = (
@@ -96,14 +107,26 @@ export default function Home() {
     <main className="flex flex-col gap-y-4 w-fit min-h-screen p-24 mx-auto content-center">
       <Header />
       <div className="grid w-full max-w-sm items-center gap-2.5">
-        <InputWithLabel
-          aria-label="Who's there?"
-          type="text"
-          id="Names"
-          placeholder="Name"
-          onKeyDown={onNamesHandleKeyDown}
-          className="w-full"
-        />
+        <div className="flex gap-x-2">
+          <InputWithLabel
+            aria-label="Who's there?"
+            type="text"
+            id="Names"
+            placeholder="Name"
+            onKeyDown={onNamesHandleKeyDown}
+            onChange={onChangeSetName}
+            className="w-full"
+            value={name}
+          />
+          <Button
+            variant="outline"
+            size="icon"
+            className="self-end w-12 aspect-square"
+            onClick={onClickAddNamesButton}
+          >
+            <PlusIcon className="h-4 w-4" />
+          </Button>
+        </div>
         <div className="flex gap-x-2">
           <InputWithLabel
             aria-label="Total amount"
@@ -161,18 +184,6 @@ export default function Home() {
                       </ToggleGroupItem>
                     );
                   })}
-                  {/* <ToggleGroupItem value="bold" aria-label="Toggle bold">
-                  <FontBoldIcon className="h-4 w-4" />
-                </ToggleGroupItem>
-                <ToggleGroupItem value="italic" aria-label="Toggle italic">
-                  <FontItalicIcon className="h-4 w-4" />
-                </ToggleGroupItem>
-                <ToggleGroupItem
-                  value="strikethrough"
-                  aria-label="Toggle strikethrough"
-                >
-                  <UnderlineIcon className="h-4 w-4" />
-                </ToggleGroupItem> */}
                 </ToggleGroup>
               </div>
             )}
@@ -182,7 +193,7 @@ export default function Home() {
               id="total"
               placeholder={
                 totalSum
-                  ? Math.round(total - totalSum).toString()
+                  ? Math.round(total - totalSum * 1.1 * 1.08).toString()
                   : "e.g. 420.69"
               }
               onKeyDown={onItemsHandleKeyDown}
@@ -280,7 +291,7 @@ export default function Home() {
                 </div>
                 <p
                   className={
-                    Math.round(totalSum - total) >= 0
+                    Math.round(totalSum * 1.1 * 1.08 - total) >= 0
                       ? "font-bold text-green-700"
                       : "font-bold text-yellow-600"
                   }
