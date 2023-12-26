@@ -37,6 +37,8 @@ export default function Home() {
   } = useFormStore();
   const [sharedBy, setSharedBy] = useState<string[]>([]);
   const [name, setName] = useState("");
+  const [currentItem, setCurrentItem] = useState<number | undefined>();
+
   const onNamesHandleKeyDown = (
     event: React.KeyboardEvent<HTMLInputElement>
   ) => {
@@ -46,9 +48,11 @@ export default function Home() {
       setName("");
     }
   };
+
   const onChangeSetName = (event: React.ChangeEvent<HTMLInputElement>) => {
     setName(event.currentTarget.value);
   };
+
   const onClickAddNamesButton = () => {
     setNames([...names, name]);
     setName("");
@@ -66,6 +70,25 @@ export default function Home() {
         },
       ]);
       event.currentTarget.value = "";
+    }
+  };
+
+  const onChangeSetCurrentItem = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setCurrentItem(parseFloat(event.currentTarget.value));
+  };
+
+  const onClickAddItemsButton = () => {
+    if (currentItem) {
+      setItems([
+        ...items,
+        {
+          price: currentItem,
+          sharedBy: [...sharedBy],
+        },
+      ]);
+      setCurrentItem(undefined);
     }
   };
 
@@ -121,7 +144,7 @@ export default function Home() {
           <Button
             variant="outline"
             size="icon"
-            className="self-end w-12 aspect-square"
+            className="self-end aspect-square"
             onClick={onClickAddNamesButton}
           >
             <PlusIcon className="h-4 w-4" />
@@ -187,26 +210,29 @@ export default function Home() {
                 </ToggleGroup>
               </div>
             )}
-            <InputWithLabel
-              aria-label="What's on the bill?"
-              type="number"
-              id="total"
-              placeholder={
-                totalSum
-                  ? Math.round(total - totalSum * 1.1 * 1.08).toString()
-                  : "e.g. 420.69"
-              }
-              onKeyDown={onItemsHandleKeyDown}
-            />
-
-            {/* <Button
+            <div className="flex gap-x-2 items-center">
+              <InputWithLabel
+                aria-label="What's on the bill?"
+                type="number"
+                id="total"
+                placeholder={
+                  totalSum
+                    ? Math.round(total - totalSum * 1.1 * 1.08).toString()
+                    : "e.g. 420.69"
+                }
+                onKeyDown={onItemsHandleKeyDown}
+                onChange={onChangeSetCurrentItem}
+                value={currentItem}
+              />
+              <Button
                 variant="outline"
                 size="icon"
-                className="self-end w-12 aspect-square"
-                onClick={handleOnClickItems}
+                className="aspect-square self-center mt-5"
+                onClick={onClickAddItemsButton}
               >
                 <PlusIcon className="h-4 w-4" />
-              </Button> */}
+              </Button>
+            </div>
           </div>
         </div>
         {names.length > 0 && (
