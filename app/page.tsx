@@ -37,7 +37,7 @@ export default function Home() {
   } = useFormStore();
   const [sharedBy, setSharedBy] = useState<string[]>([]);
   const [name, setName] = useState("");
-  const [currentItem, setCurrentItem] = useState<number | undefined>();
+  const [currentItem, setCurrentItem] = useState<number>(0);
 
   const onNamesHandleKeyDown = (
     event: React.KeyboardEvent<HTMLInputElement>
@@ -61,7 +61,7 @@ export default function Home() {
   const onItemsHandleKeyDown = (
     event: React.KeyboardEvent<HTMLInputElement>
   ) => {
-    if (event.key === "Enter") {
+    if (event.key === "Enter" && sharedBy.length) {
       setItems([
         ...items,
         {
@@ -88,7 +88,7 @@ export default function Home() {
           sharedBy: [...sharedBy],
         },
       ]);
-      setCurrentItem(undefined);
+      setCurrentItem(Math.round(total - (totalSum + currentItem) * 1.1 * 1.08));
     }
   };
 
@@ -229,6 +229,7 @@ export default function Home() {
                 size="icon"
                 className="aspect-square self-center mt-5"
                 onClick={onClickAddItemsButton}
+                disabled={!sharedBy.length}
               >
                 <PlusIcon className="h-4 w-4" />
               </Button>
