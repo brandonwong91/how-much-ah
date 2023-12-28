@@ -17,13 +17,13 @@ import {
 
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import Header from "./components/Header";
-import { InputWithLabel } from "./components/InputWithLabel";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useFormStore } from "./state";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { PlusIcon } from "@radix-ui/react-icons";
+import { Input } from "@/components/ui/input";
 export default function Home() {
   const {
     names,
@@ -35,6 +35,8 @@ export default function Home() {
     items,
     setItems,
   } = useFormStore();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [editName, setEditName] = useState("");
   const [sharedBy, setSharedBy] = useState<string[]>([]);
   const [name, setName] = useState("");
   const [currentItem, setCurrentItem] = useState<number>(0);
@@ -43,9 +45,19 @@ export default function Home() {
     event: React.KeyboardEvent<HTMLInputElement>
   ) => {
     if (event.key === "Enter") {
-      setNames([...names, event.currentTarget.value]);
+      if (editName) {
+        setNames(
+          names.map((name) =>
+            name === editName ? event.currentTarget.value : name
+          )
+        );
+        setEditName("");
+      } else {
+        setNames([...names, event.currentTarget.value]);
+      }
       event.currentTarget.value = "";
       setName("");
+      setEditName("");
     }
   };
 
@@ -54,8 +66,21 @@ export default function Home() {
   };
 
   const onClickAddNamesButton = () => {
-    setNames([...names, name]);
+    if (editName) {
+      setNames(names.map((n) => (n === editName ? name : n)));
+      setEditName("");
+    } else {
+      setNames([...names, name]);
+    }
     setName("");
+  };
+
+  const handleEditName = (name: string) => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+      setName(name);
+      setEditName(name);
+    }
   };
 
   const onItemsHandleKeyDown = (
@@ -131,7 +156,7 @@ export default function Home() {
       <Header />
       <div className="grid w-full max-w-sm items-center gap-2.5">
         <div className="flex gap-x-2">
-          <InputWithLabel
+          <Input
             aria-label="Who's there?"
             type="text"
             id="Names"
@@ -140,6 +165,7 @@ export default function Home() {
             onChange={onChangeSetName}
             className="w-full"
             value={name}
+            ref={inputRef}
           />
           <Button
             variant="outline"
@@ -151,7 +177,7 @@ export default function Home() {
           </Button>
         </div>
         <div className="flex gap-x-2">
-          <InputWithLabel
+          <Input
             aria-label="Total amount"
             type="number"
             id="total"
@@ -211,7 +237,7 @@ export default function Home() {
               </div>
             )}
             <div className="flex gap-x-2 items-center">
-              <InputWithLabel
+              <Input
                 aria-label="What's on the bill?"
                 type="number"
                 id="total"
@@ -241,11 +267,16 @@ export default function Home() {
             <CardHeader>
               <CardTitle className="flex gap-x-2">
                 {names.map((n) => {
+                  let variant = "default";
+                  if (n === paidBy) variant = "destructive";
+                  if (n === editName) variant = "outline";
+
                   return (
                     <Badge
                       className="w-[56px]"
                       key={n}
-                      variant={paidBy === n ? "destructive" : "default"}
+                      variant={variant}
+                      onClick={() => handleEditName(n)}
                     >
                       {n.split(" ").length > 1
                         ? n
@@ -279,7 +310,7 @@ export default function Home() {
                             className={
                               !match
                                 ? "w-[56px] text-transparent bg-transparent appearance-none border-none outline-none shadow-none hover:bg-transparent cursor-default"
-                                : "w-[56px]"
+                                : "w-[56px] cursor-pointer"
                             }
                           >
                             {match ? postGSTSharedPrice : "-"}
