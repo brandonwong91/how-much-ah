@@ -267,7 +267,13 @@ export default function Home() {
             <CardHeader>
               <CardTitle className="flex gap-x-2">
                 {names.map((n) => {
-                  let variant = "default";
+                  let variant:
+                    | "default"
+                    | "destructive"
+                    | "outline"
+                    | "secondary"
+                    | null
+                    | undefined = "default";
                   if (n === paidBy) variant = "destructive";
                   if (n === editName) variant = "outline";
 
