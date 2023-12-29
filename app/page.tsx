@@ -22,7 +22,7 @@ import { useFormStore } from "./state";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { PlusIcon } from "@radix-ui/react-icons";
+import { Cross1Icon, PlusIcon } from "@radix-ui/react-icons";
 import { Input } from "@/components/ui/input";
 export default function Home() {
   const {
@@ -45,7 +45,10 @@ export default function Home() {
     event: React.KeyboardEvent<HTMLInputElement>
   ) => {
     if (event.key === "Enter") {
-      if (editName) {
+      if (editName && event.currentTarget.value === "") {
+        setNames(names.filter((name) => name !== editName));
+        setEditName("");
+      } else if (editName) {
         setNames(
           names.map((name) =>
             name === editName ? event.currentTarget.value : name
@@ -81,6 +84,12 @@ export default function Home() {
       setName(name);
       setEditName(name);
     }
+  };
+
+  const handleRemoveName = () => {
+    setNames(names.filter((name) => name !== editName));
+    setEditName("");
+    setName("");
   };
 
   const onItemsHandleKeyDown = (
@@ -175,6 +184,16 @@ export default function Home() {
           >
             <PlusIcon className="h-4 w-4" />
           </Button>
+          {editName && (
+            <Button
+              variant="destructive"
+              size="icon"
+              className="self-end aspect-square"
+              onClick={handleRemoveName}
+            >
+              <Cross1Icon className="h-4 w-4" />
+            </Button>
+          )}
         </div>
         <div className="flex gap-x-2">
           <Input
@@ -186,6 +205,7 @@ export default function Home() {
             onChange={onTotalOnChange}
             onKeyDown={onTotalHandleKeyDown}
           />
+
           <div className="grid w-full max-w-sm items-center gap-1.5">
             <Label>{`Paid by`}</Label>
             <Select onValueChange={onSelectPaidBy}>
@@ -279,7 +299,7 @@ export default function Home() {
 
                   return (
                     <Badge
-                      className="w-[56px]"
+                      className="w-[56px] cursor-pointer"
                       key={n}
                       variant={variant}
                       onClick={() => handleEditName(n)}
