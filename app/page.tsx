@@ -36,15 +36,18 @@ export default function Home() {
     setItems,
   } = useFormStore();
   const inputRef = useRef<HTMLInputElement>(null);
+  const itemRef = useRef<HTMLInputElement>(null);
   const [editName, setEditName] = useState("");
+  const [editCurrentItem, setEditCurrentItem] = useState(0);
   const [sharedBy, setSharedBy] = useState<string[]>([]);
   const [name, setName] = useState("");
   const [currentItem, setCurrentItem] = useState<number>(0);
+  const [remaining, setRemaining] = useState<number>(0);
 
   const onNamesHandleKeyDown = (
     event: React.KeyboardEvent<HTMLInputElement>
   ) => {
-    if (event.key === "Enter") {
+    if (event.key === "Enter" && event.currentTarget.value) {
       if (editName && event.currentTarget.value === "") {
         setNames(names.filter((name) => name !== editName));
         setEditName("");
@@ -96,34 +99,82 @@ export default function Home() {
     event: React.KeyboardEvent<HTMLInputElement>
   ) => {
     if (event.key === "Enter" && sharedBy.length) {
-      setItems([
-        ...items,
-        {
-          price: parseFloat(event.currentTarget.value),
-          sharedBy: [...sharedBy],
-        },
-      ]);
-      event.currentTarget.value = "";
+      if (editCurrentItem !== 0) {
+        setItems(
+          items.map((item) =>
+            item.price === editCurrentItem
+              ? {
+                  price: parseFloat(event.currentTarget.value),
+                  sharedBy: [...sharedBy],
+                }
+              : item
+          )
+        );
+        setEditCurrentItem(0);
+      } else {
+        setItems([
+          ...items,
+          {
+            price: parseFloat(event.currentTarget.value),
+            sharedBy: [...sharedBy],
+          },
+        ]);
+      }
+      if (itemRef.current) {
+        itemRef.current?.select();
+      }
+      setRemaining(Math.round(total - (totalSum + currentItem)));
     }
   };
 
   const onChangeSetCurrentItem = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    setCurrentItem(parseFloat(event.currentTarget.value));
+    if (event.currentTarget.value)
+      setCurrentItem(parseFloat(event.currentTarget.value));
   };
 
   const onClickAddItemsButton = () => {
     if (currentItem) {
-      setItems([
-        ...items,
-        {
-          price: currentItem,
-          sharedBy: [...sharedBy],
-        },
-      ]);
-      setCurrentItem(Math.round(total - (totalSum + currentItem) * 1.1 * 1.08));
+      if (editCurrentItem !== 0) {
+        setItems(
+          items.map((item) =>
+            item.price === editCurrentItem
+              ? {
+                  price: currentItem,
+                  sharedBy: [...sharedBy],
+                }
+              : item
+          )
+        );
+        setEditCurrentItem(0);
+      } else {
+        setItems([
+          ...items,
+          {
+            price: currentItem,
+            sharedBy: [...sharedBy],
+          },
+        ]);
+      }
+      itemRef.current?.select();
+      setRemaining(Math.round(total - (totalSum + currentItem)));
     }
+  };
+
+  const handleEditItem = (price: number) => {
+    if (itemRef.current) {
+      itemRef.current.focus();
+      itemRef.current.select();
+      setCurrentItem(price);
+      setEditCurrentItem(price);
+    }
+  };
+
+  const handleRemoveItem = () => {
+    setItems(items.filter((item) => item.price !== editCurrentItem));
+    setEditCurrentItem(0);
+    setCurrentItem(0);
   };
 
   const onSelectPaidBy = (value: string) => {
@@ -166,7 +217,7 @@ export default function Home() {
       <div className="grid w-full max-w-sm items-center gap-2.5">
         <div className="flex gap-x-2">
           <Input
-            aria-label="Who's there?"
+            aria-label="Who's there? (min. 3 char)"
             type="text"
             id="Names"
             placeholder="Name"
@@ -197,7 +248,7 @@ export default function Home() {
         </div>
         <div className="flex gap-x-2">
           <Input
-            aria-label="Total amount"
+            aria-label="Total amount (aft. tax)"
             type="number"
             id="total"
             placeholder="e.g. 420.69"
@@ -258,7 +309,7 @@ export default function Home() {
             )}
             <div className="flex gap-x-2 items-center">
               <Input
-                aria-label="What's on the bill?"
+                aria-label="What's on the bill? (bef. tax)"
                 type="number"
                 id="total"
                 placeholder={
@@ -269,6 +320,7 @@ export default function Home() {
                 onKeyDown={onItemsHandleKeyDown}
                 onChange={onChangeSetCurrentItem}
                 value={currentItem}
+                ref={itemRef}
               />
               <Button
                 variant="outline"
@@ -279,6 +331,16 @@ export default function Home() {
               >
                 <PlusIcon className="h-4 w-4" />
               </Button>
+              {editCurrentItem !== 0 && (
+                <Button
+                  variant="destructive"
+                  size="icon"
+                  className="aspect-square self-center mt-5"
+                  onClick={handleRemoveItem}
+                >
+                  <Cross1Icon className="h-4 w-4" />
+                </Button>
+              )}
             </div>
           </div>
         </div>
@@ -316,8 +378,8 @@ export default function Home() {
               </CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-y-1">
-              {items.map((i) => {
-                const postGSTPrice = (i.price + i.price * 0.1) * 1.08;
+              {items.map((i, index) => {
+                const GST = i.price * 0.1 * 1.08;
                 const sharedPrice = (i.price / i.sharedBy.length).toFixed(2);
 
                 const postGSTSharedPrice = (
@@ -331,25 +393,40 @@ export default function Home() {
                         const match = i.sharedBy.includes(n);
                         return (
                           <Badge
-                            key={`${n}-${i.price}`}
+                            key={`${n}-${i.price}-${index}`}
                             variant={match ? "outline" : "default"}
                             className={
                               !match
                                 ? "w-[56px] text-transparent bg-transparent appearance-none border-none outline-none shadow-none hover:bg-transparent cursor-default"
                                 : "w-[56px] cursor-pointer"
                             }
+                            onClick={() => handleEditItem(i.price)}
                           >
                             {match ? postGSTSharedPrice : "-"}
                           </Badge>
                         );
                       })}
                     </div>
-                    <p className="pl-2 text-sm font-semibold items-center">
-                      {postGSTPrice.toFixed(2)}
-                    </p>
+                    <div
+                      className="pl-2 text-sm font-semibold items-center cursor-pointer flex gap-x-[2px]"
+                      onClick={() => handleEditItem(i.price)}
+                    >
+                      {i.price.toFixed(2)}
+                      <p className="border px-1 text-xs rounded-sm">{`${GST.toFixed(
+                        2
+                      )}`}</p>
+                    </div>
                   </div>
                 );
               })}
+              {total > 0 && items.length > 0 && remaining !== 0 && (
+                <Badge
+                  variant={"secondary"}
+                  className="w-fit self-end border rounded-ml px-1"
+                >
+                  {`${remaining}...`}
+                </Badge>
+              )}
             </CardContent>
 
             <CardFooter className="flex flex-col">
