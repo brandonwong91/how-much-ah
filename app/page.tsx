@@ -14,7 +14,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import Header from "./components/Header";
 import { useRef, useState } from "react";
@@ -43,6 +48,8 @@ export default function Home() {
   const [name, setName] = useState("");
   const [currentItem, setCurrentItem] = useState<number>(0);
   const [remaining, setRemaining] = useState<number>(0);
+  const [serviceTax, setServiceTax] = useState<number>(10);
+  const [gst, setGst] = useState<number>(9);
 
   const onNamesHandleKeyDown = (
     event: React.KeyboardEvent<HTMLInputElement>
@@ -211,6 +218,14 @@ export default function Home() {
     });
   });
 
+  const onChangeServiceTax = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setServiceTax(parseInt(event.currentTarget.value));
+  };
+
+  const onChangeGst = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setGst(parseInt(event.currentTarget.value));
+  };
+
   return (
     <main className="flex flex-col gap-y-4 w-fit min-h-screen p-24 mx-auto content-center">
       <Header />
@@ -314,7 +329,10 @@ export default function Home() {
                 id="total"
                 placeholder={
                   totalSum
-                    ? Math.round(total - totalSum * 1.1 * 1.08).toString()
+                    ? Math.round(
+                        total -
+                          totalSum * (1 + serviceTax / 100) * (1 + gst / 100)
+                      ).toString()
                     : "e.g. 420.69"
                 }
                 onKeyDown={onItemsHandleKeyDown}
@@ -343,6 +361,31 @@ export default function Home() {
               )}
             </div>
           </div>
+          <Accordion type="single" collapsible>
+            <AccordionItem value="item-1">
+              <AccordionTrigger>Need to change the taxes?</AccordionTrigger>
+              <AccordionContent className="flex gap-x-2 mt-2">
+                <Input
+                  aria-label="Service tax (%)"
+                  type="number"
+                  id="serviceTax"
+                  placeholder="e.g. 10"
+                  onChange={onChangeServiceTax}
+                  className="w-full"
+                  value={serviceTax}
+                />
+                <Input
+                  aria-label="GST (%)"
+                  type="number"
+                  id="gst"
+                  placeholder="e.g. 9"
+                  onChange={onChangeGst}
+                  value={gst}
+                  className="w-full"
+                />
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </div>
         {names.length > 0 && (
           <Card>
@@ -379,12 +422,13 @@ export default function Home() {
             </CardHeader>
             <CardContent className="flex flex-col gap-y-1">
               {items.map((i, index) => {
-                const GST = i.price * 0.1 * 1.08;
+                const GST = i.price * (serviceTax / 100) * (gst / 100);
                 const sharedPrice = (i.price / i.sharedBy.length).toFixed(2);
 
                 const postGSTSharedPrice = (
-                  (parseFloat(sharedPrice) + parseFloat(sharedPrice) * 0.1) *
-                  1.08
+                  (parseFloat(sharedPrice) +
+                    parseFloat(sharedPrice) * (serviceTax / 100)) *
+                  (1 + gst / 100)
                 ).toFixed(2);
                 return (
                   <div key={i.price} className="flex justify-between">
@@ -452,7 +496,10 @@ export default function Home() {
                 </div>
                 <p
                   className={
-                    Math.round(totalSum * 1.1 * 1.08 - total) >= 0
+                    Math.round(
+                      totalSum * (1 + serviceTax / 100) * (1 + gst / 100) -
+                        total
+                    ) >= 0
                       ? "font-bold text-green-700"
                       : "font-bold text-yellow-600"
                   }
