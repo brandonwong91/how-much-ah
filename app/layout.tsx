@@ -10,8 +10,12 @@ const fontSans = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "How much ah",
-  description: "Singapore based bill splitter made with 🧧",
+  title: "How much ah calculator",
+  description: "Meal bill splitter made with 🧧 by brandonwongck",
+  openGraph: {
+    title: "How much ah calculator",
+    description: "Meal bill splitter made with 🧧 by brandonwongck",
+  },
 };
 
 export default function RootLayout({
