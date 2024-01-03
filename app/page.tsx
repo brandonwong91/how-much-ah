@@ -446,7 +446,7 @@ export default function Home() {
                                 ? "w-[56px] text-transparent bg-transparent appearance-none border-none outline-none shadow-none hover:bg-transparent cursor-default"
                                 : "w-[56px] cursor-pointer"
                             }
-                            onClick={() => handleEditItem(i.price)}
+                            onClick={() => handleEditItem(price)}
                           >
                             {match ? postGSTSharedPrice : "-"}
                           </Badge>
