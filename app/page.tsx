@@ -209,8 +209,8 @@ export default function Home() {
     const sharedPrice = (price / sharedBy.length).toFixed(2);
     totalSum += price;
     const postGSTSharedPrice = (
-      (parseFloat(sharedPrice) + parseFloat(sharedPrice) * 0.1) *
-      1.08
+      (parseFloat(sharedPrice) + parseFloat(sharedPrice) * (serviceTax / 100)) *
+      (1 + gst / 100)
     ).toFixed(2);
     sharedBy.forEach((person) => {
       sumByPerson[person] =
@@ -421,9 +421,10 @@ export default function Home() {
               </CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-y-1">
-              {items.map((i, index) => {
-                const GST = i.price * (serviceTax / 100) * (gst / 100);
-                const sharedPrice = (i.price / i.sharedBy.length).toFixed(2);
+              {items.map(({ price, sharedBy }, index) => {
+                const GSTTotal =
+                  price * (1 + serviceTax / 100) * (1 + gst / 100) - price;
+                const sharedPrice = (price / sharedBy.length).toFixed(2);
 
                 const postGSTSharedPrice = (
                   (parseFloat(sharedPrice) +
@@ -431,13 +432,13 @@ export default function Home() {
                   (1 + gst / 100)
                 ).toFixed(2);
                 return (
-                  <div key={i.price} className="flex justify-between">
+                  <div key={price} className="flex justify-between">
                     <div className="flex gap-x-2">
                       {names.map((n) => {
-                        const match = i.sharedBy.includes(n);
+                        const match = sharedBy.includes(n);
                         return (
                           <Badge
-                            key={`${n}-${i.price}-${index}`}
+                            key={`${n}-${price}-${index}`}
                             variant={match ? "outline" : "default"}
                             className={
                               !match
@@ -453,10 +454,10 @@ export default function Home() {
                     </div>
                     <div
                       className="pl-2 text-sm font-semibold items-center cursor-pointer flex gap-x-[2px]"
-                      onClick={() => handleEditItem(i.price)}
+                      onClick={() => handleEditItem(price)}
                     >
-                      {i.price.toFixed(2)}
-                      <p className="border px-1 text-xs rounded-sm">{`${GST.toFixed(
+                      {price.toFixed(2)}
+                      <p className="border px-1 text-xs rounded-sm">{`${GSTTotal.toFixed(
                         2
                       )}`}</p>
                     </div>
