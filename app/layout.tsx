@@ -15,6 +15,17 @@ export const metadata: Metadata = {
   openGraph: {
     title: "How much ah calculator",
     description: "Meal bill splitter made with 🧧 by brandonwongck",
+    url: "https://howmuch.brandonwongck.com",
+    siteName: "How much ah calculator",
+    images: [
+      {
+        url: "/preview.png",
+        width: 1078,
+        height: 674,
+      },
+    ],
+    locale: "en_US",
+    type: "website",
   },
 };
 
