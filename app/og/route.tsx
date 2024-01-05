@@ -5,9 +5,9 @@ import { ImageResponse } from "next/og";
 export const runtime = "edge";
 
 export async function GET() {
-  const image = await fetch(new URL("./preview.png", import.meta.url)).then(
-    (res) => res.arrayBuffer()
-  );
+  const image = await fetch(
+    new URL("/public/preview.png", import.meta.url)
+  ).then((res) => res.arrayBuffer());
 
   return new ImageResponse(
     (
@@ -22,7 +22,7 @@ export async function GET() {
           alignItems: "center",
         }}
       >
-        <img width="256" height="256" src={image} alt="preview" />
+        <img width="1280px" height="800px" src={image} alt="preview" />
       </div>
     ),
     {
