@@ -6,7 +6,7 @@ export const runtime = "edge";
 
 export async function GET() {
   const image = await fetch(
-    new URL("/public/preview.png", import.meta.url)
+    new URL("/public/og-image.png", import.meta.url)
   ).then((res) => res.arrayBuffer());
 
   return new ImageResponse(
