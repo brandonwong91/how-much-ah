@@ -22,7 +22,12 @@ export async function GET() {
           alignItems: "center",
         }}
       >
-        <img width="1280px" height="800px" src={image} alt="preview" />
+        <img
+          width="1280px"
+          height="800px"
+          src={image as unknown as string}
+          alt="preview"
+        />
       </div>
     ),
     {
