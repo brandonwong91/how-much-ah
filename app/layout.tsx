@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, ResolvingMetadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "./components/theme-provider";
@@ -10,16 +10,11 @@ const fontSans = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://howmuch.brandonwongck.com"),
   title: "How much ah calculator",
   description: "Meal bill splitter made with 🧧 by brandonwongck",
   openGraph: {
-    title: "How much ah calculator",
-    description: "Meal bill splitter made with 🧧 by brandonwongck",
-    url: "https://howmuch.brandonwongck.com",
-    images: ["/preview.png"],
-    siteName: "How much ah calculator",
-    locale: "en_US",
-    type: "website",
+    images: "/og-image.png",
   },
 };
 
