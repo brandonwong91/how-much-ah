@@ -16,6 +16,7 @@ export const metadata: Metadata = {
     title: "How much ah calculator",
     description: "Meal bill splitter made with 🧧 by brandonwongck",
     url: "https://howmuch.brandonwongck.com",
+    images: ["/public/preview.png"],
     siteName: "How much ah calculator",
     locale: "en_US",
     type: "website",
