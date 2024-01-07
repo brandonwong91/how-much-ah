@@ -27,7 +27,7 @@ import { useFormStore } from "./state";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { Cross1Icon, PlusIcon } from "@radix-ui/react-icons";
+import { Cross1Icon, PlusIcon, ArrowRightIcon } from "@radix-ui/react-icons";
 import { Input } from "@/components/ui/input";
 export default function Home() {
   const {
@@ -509,6 +509,28 @@ export default function Home() {
                   {total.toFixed(2) || ""}
                 </p>
               </div>
+              {paidBy && <Separator className="my-2" />}
+              {paidBy && total && (
+                <div className="flex flex-col w-full gap-1.5">
+                  {names
+                    .filter((n) => n !== paidBy)
+                    .map((n) => {
+                      return (
+                        <div
+                          key={`${n}-paid`}
+                          className="self-start text-sm font-semibold flex gap-2"
+                        >
+                          <Badge className="flex gap-x-1">
+                            <div>{n}</div>
+                            <ArrowRightIcon />
+                            <div>{paidBy}</div>
+                          </Badge>
+                          <Badge variant={"outline"}>{sumByPerson[n]}</Badge>
+                        </div>
+                      );
+                    })}
+                </div>
+              )}
             </CardFooter>
           </Card>
         )}
