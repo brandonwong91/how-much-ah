@@ -27,8 +27,14 @@ import { useFormStore } from "./state";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { Cross1Icon, PlusIcon, ArrowRightIcon } from "@radix-ui/react-icons";
+import {
+  Cross1Icon,
+  PlusIcon,
+  ArrowRightIcon,
+  CopyIcon,
+} from "@radix-ui/react-icons";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/use-toast";
 export default function Home() {
   const {
     names,
@@ -50,6 +56,7 @@ export default function Home() {
   const [remaining, setRemaining] = useState<number>(0);
   const [serviceTax, setServiceTax] = useState<number>(10);
   const [gst, setGst] = useState<number>(9);
+  const { toast } = useToast();
 
   const onNamesHandleKeyDown = (
     event: React.KeyboardEvent<HTMLInputElement>
@@ -226,6 +233,20 @@ export default function Home() {
     setGst(parseInt(event.currentTarget.value));
   };
 
+  const handleCopyClipboard = () => {
+    const textToShow = `Hi ${names.join(",")}!\n\n${names
+      .filter((n) => n !== paidBy)
+      .map((n) => {
+        return `${n}: SGD${sumByPerson[n]}`;
+      })
+      .join("\n")}\n\nTotal: SGD${totalSum}\nPaid by: ${paidBy}`;
+
+    toast({
+      description: textToShow,
+    });
+    navigator.clipboard.writeText(textToShow);
+  };
+
   return (
     <main className="flex flex-col gap-y-4 w-fit min-h-screen p-24 mx-auto content-center">
       <Header />
@@ -391,34 +412,43 @@ export default function Home() {
         {names.length > 0 && (
           <Card className="">
             <CardHeader>
-              <CardTitle className="flex gap-x-2">
-                {names.map((n) => {
-                  let variant:
-                    | "default"
-                    | "destructive"
-                    | "outline"
-                    | "secondary"
-                    | null
-                    | undefined = "default";
-                  if (n === paidBy) variant = "destructive";
-                  if (n === editName) variant = "outline";
-
-                  return (
-                    <Badge
-                      className="w-[56px] cursor-pointer"
-                      key={n}
-                      variant={variant}
-                      onClick={() => handleEditName(n)}
-                    >
-                      {n.split(" ").length > 1
-                        ? n
-                            .split(" ")
-                            .map((word) => word.charAt(0))
-                            .join("")
-                        : n.substring(0, 3)}
-                    </Badge>
-                  );
-                })}
+              <CardTitle className="flex gap-x-2 justify-between">
+                <div className="flex gap-x-2">
+                  {names.map((n, index) => {
+                    let variant:
+                      | "default"
+                      | "destructive"
+                      | "outline"
+                      | "secondary"
+                      | null
+                      | undefined = "default";
+                    if (n === paidBy) variant = "destructive";
+                    if (n === editName) variant = "outline";
+                    return (
+                      <Badge
+                        className="w-[56px] cursor-pointer"
+                        key={`${n}-${index}`}
+                        variant={variant}
+                        onClick={() => handleEditName(n)}
+                      >
+                        {n.split(" ").length > 1
+                          ? n
+                              .split(" ")
+                              .map((word) => word.charAt(0))
+                              .join("")
+                          : n.substring(0, 3)}
+                      </Badge>
+                    );
+                  })}
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-fit p-1 self-center"
+                  onClick={handleCopyClipboard}
+                >
+                  <CopyIcon />
+                </Button>
               </CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-y-1">
@@ -433,7 +463,10 @@ export default function Home() {
                   (1 + gst / 100)
                 ).toFixed(2);
                 return (
-                  <div key={price} className="flex justify-between">
+                  <div
+                    key={`${price}-${index}`}
+                    className="flex justify-between"
+                  >
                     <div className="flex gap-x-2">
                       {names.map((n) => {
                         const match = sharedBy.includes(n);
@@ -479,11 +512,11 @@ export default function Home() {
               <Separator className="my-2" />
               <div className="flex justify-between w-full gap-x-2">
                 <div className="flex gap-x-2">
-                  {names.map((key) => {
+                  {names.map((key, index) => {
                     const match = Object.keys(sumByPerson).includes(key);
                     return (
                       <Badge
-                        key={key}
+                        key={`${key}-${index}`}
                         className={
                           !match
                             ? "w-[56px] font-bold text-transparent bg-transparent appearance-none border-none outline-none shadow-none hover:bg-transparent cursor-default"
@@ -509,8 +542,10 @@ export default function Home() {
                   {total.toFixed(2) || ""}
                 </p>
               </div>
-              {paidBy && <Separator className="my-2" />}
-              {paidBy && total && (
+              {paidBy && total && items.length > 0 && (
+                <Separator className="my-2" />
+              )}
+              {paidBy && total && items.length > 0 && (
                 <div className="flex flex-col w-full gap-1.5">
                   {names
                     .filter((n) => n !== paidBy)
@@ -525,7 +560,9 @@ export default function Home() {
                             <ArrowRightIcon />
                             <div>{paidBy}</div>
                           </Badge>
-                          <Badge variant={"outline"}>{sumByPerson[n]}</Badge>
+                          {sumByPerson[n] && (
+                            <Badge variant={"outline"}>{sumByPerson[n]}</Badge>
+                          )}
                         </div>
                       );
                     })}
