@@ -76,7 +76,14 @@ export default function Home() {
         );
         setEditName("");
       } else {
-        setNames([...names, event.currentTarget.value]);
+        if (!names.includes(event.currentTarget.value)) {
+          setNames([...names, event.currentTarget.value]);
+        } else {
+          toast({
+            title: "Name already exists",
+            description: "Please enter a unique name",
+          });
+        }
       }
       event.currentTarget.value = "";
       setName("");
@@ -199,8 +206,10 @@ export default function Home() {
   };
 
   const onTotalOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setTotal(parseFloat(event.currentTarget.value));
-    event.currentTarget.value = "";
+    if (event.currentTarget.value) {
+      setTotal(parseFloat(event.currentTarget.value));
+      event.currentTarget.value = "";
+    }
   };
 
   const onTotalHandleKeyDown = (
