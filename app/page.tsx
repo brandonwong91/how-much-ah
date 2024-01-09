@@ -32,6 +32,8 @@ import {
   PlusIcon,
   ArrowRightIcon,
   CopyIcon,
+  CheckCircledIcon,
+  CheckIcon,
 } from "@radix-ui/react-icons";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
@@ -57,6 +59,7 @@ export default function Home() {
   const [serviceTax, setServiceTax] = useState<number>(10);
   const [gst, setGst] = useState<number>(9);
   const { toast } = useToast();
+  const [clickedCopy, setClickedCopy] = useState(false);
 
   const onNamesHandleKeyDown = (
     event: React.KeyboardEvent<HTMLInputElement>
@@ -234,6 +237,11 @@ export default function Home() {
   };
 
   const handleCopyClipboard = () => {
+    setClickedCopy(true);
+    setTimeout(() => {
+      setClickedCopy(false);
+    }, 2000);
+
     const textToShow = `Hi ${names.join(",")}!\n\n${names
       .filter((n) => n !== paidBy)
       .map((n) => {
@@ -447,7 +455,7 @@ export default function Home() {
                   className="h-fit p-1 self-center"
                   onClick={handleCopyClipboard}
                 >
-                  <CopyIcon />
+                  {clickedCopy ? <CheckIcon /> : <CopyIcon />}
                 </Button>
               </CardTitle>
             </CardHeader>
