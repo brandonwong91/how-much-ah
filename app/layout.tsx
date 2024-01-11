@@ -14,8 +14,28 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://howmuch.brandonwongck.com"),
   title: "How much ah calculator",
   description: "Meal bill splitter made with 🧧 by brandonwongck",
+  keywords: ["howmuch", "brandonwongck", "meal splitter", "bill splitter"],
+  authors: [{ name: "Brandon Wong", url: "https://www.brandonwongck.com" }],
+  creator: "Brandon Wong",
   openGraph: {
+    url: "https://howmuch.brandonwongck.com",
+    siteName: "How Much Ah",
     images: "/og-image.png",
+    locale: "en_US",
+    type: "website",
+  },
+  robots: {
+    index: false,
+    follow: true,
+    nocache: true,
+    googleBot: {
+      index: true,
+      follow: false,
+      noimageindex: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
 };
 
